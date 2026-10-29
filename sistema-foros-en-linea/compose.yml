@@ -1,0 +1,49 @@
+services:
+  oracle:
+    image: gvenzl/oracle-free:23.26.3-slim
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_CLAVE_ADMIN:?Configure ORACLE_CLAVE_ADMIN}
+      CLAVE_USUARIOS: ${ORACLE_CLAVE_USUARIOS:?Configure ORACLE_CLAVE_USUARIOS}
+      CLAVE_FORO: ${ORACLE_CLAVE_FORO:?Configure ORACLE_CLAVE_FORO}
+    ports:
+      - "1522:1521"
+    volumes:
+      - datos-oracle:/opt/oracle/oradata
+      - ../scripts:/opt/foro-sql:ro
+      - ./herramientas/inicializar-oracle.sh:/container-entrypoint-initdb.d/01-foro.sh:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+  usuarios:
+    build:
+      context: .
+      args:
+        MODULO: servicio-usuarios
+    environment:
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/FREEPDB1
+      ORACLE_CLAVE_USUARIOS: ${ORACLE_CLAVE_USUARIOS}
+      JWT_SECRETO: ${JWT_SECRETO:?Configure JWT_SECRETO}
+    ports:
+      - "8081:8081"
+    depends_on:
+      oracle:
+        condition: service_healthy
+  foro:
+    build:
+      context: .
+      args:
+        MODULO: servicio-foro
+    environment:
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/FREEPDB1
+      ORACLE_CLAVE_FORO: ${ORACLE_CLAVE_FORO}
+      JWT_SECRETO: ${JWT_SECRETO:?Configure JWT_SECRETO}
+    ports:
+      - "8082:8082"
+    depends_on:
+      oracle:
+        condition: service_healthy
+volumes:
+  datos-oracle:

@@ -1,0 +1,50 @@
+SISTEMA DE FOROS EN LÍNEA
+Matias Muñoz
+Desarrollo Full Stack III DSY2205
+
+ORGANIZACIÓN DE LA ENTREGA
+sistema-foros-en-linea: proyecto Spring Boot, microservicios, configuración, pruebas, colección Postman e historial Git.
+scripts: scripts Oracle de esquemas, tablas, datos iniciales y consultas de verificación.
+scripts/pruebas: datos SQL utilizados por las pruebas automatizadas.
+Las carpetas sistema-foros-en-linea y scripts se conservan al mismo nivel.
+
+SCRIPTS ORACLE
+00_crear_esquemas.sql: crea MM_USUARIOS y MM_FORO y asigna sus permisos.
+01_usuarios.sql: crea roles y usuarios y carga tres registros por tabla.
+02_foro.sql: crea categorías, temas y comentarios y carga cinco registros por tabla.
+03_verificar_registros.sql: consulta los conteos y las relaciones de los registros.
+
+EJECUCIÓN EN WINDOWS
+Requisitos: JDK 21 con JAVA_HOME definido, Oracle XE con XEPDB1 abierto y SQL Plus en PATH.
+Desde la carpeta sistema-foros-en-linea:
+
+Copy-Item .env.ejemplo .env
+.mvnw.cmd clean verify
+
+Preparación de los esquemas mediante una cuenta autorizada como SYSDBA en una instalación nueva:
+powershell -NoProfile -ExecutionPolicy Bypass -File .herramientaspreparar-oracle.ps1
+
+Iniciar cada servicio en una terminal independiente desde sistema-foros-en-linea:
+powershell -NoProfile -ExecutionPolicy Bypass -File .herramientasiniciar-usuarios.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .herramientasiniciar-foro.ps1
+
+Usuarios: http://localhost:8081
+Foro: http://localhost:8082
+
+DOCKER COMPOSE
+Desde sistema-foros-en-linea, con .env creado y Docker Desktop en ejecución:
+docker compose up --build -d
+La configuración utiliza los scripts de la carpeta scripts ubicada junto a sistema-foros-en-linea.
+
+CUENTAS DE DEMOSTRACIÓN
+matias.munoz@foro.cl: ADMINISTRADOR
+camila.soto@foro.cl: MODERADOR
+diego.rojas@foro.cl: USUARIO
+Contraseña: ForoAcademico2026!
+
+POSTMAN
+Importar los dos archivos JSON de sistema-foros-en-linea/postman y seleccionar el entorno Foro académico local.
+Ejecutar la colección en el orden entregado.
+
+GIT
+sistema-foros-en-linea/historial conserva el historial de desarrollo en formato Git bundle y el registro de commits.

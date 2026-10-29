@@ -1,0 +1,1544 @@
+{
+  "info": {
+    "name": "Foro académico de Matias Muñoz",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Validación de usuarios, sesiones, permisos y operaciones del foro en Oracle."
+  },
+  "item": [
+    {
+      "name": "Verificar servicio de usuarios",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_usuarios}}/actuator/health",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verificar servicio de foro",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_foro}}/actuator/health",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Iniciar sesión de administrador",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/sesiones",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"correo\": \"matias.munoz@foro.cl\", \"contrasena\": \"ForoAcademico2026!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.collectionVariables.set('token_administrador', pm.response.json().token);",
+              "pm.test('La sesión tiene vencimiento', function () { pm.expect(pm.response.json().duracionSegundos).to.eql(900); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Iniciar sesión de moderador",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/sesiones",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"correo\": \"camila.soto@foro.cl\", \"contrasena\": \"ForoAcademico2026!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.collectionVariables.set('token_moderador', pm.response.json().token);",
+              "pm.test('La sesión tiene vencimiento', function () { pm.expect(pm.response.json().duracionSegundos).to.eql(900); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Iniciar sesión de usuario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/sesiones",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"correo\": \"diego.rojas@foro.cl\", \"contrasena\": \"ForoAcademico2026!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.collectionVariables.set('token_usuario', pm.response.json().token);",
+              "pm.test('La sesión tiene vencimiento', function () { pm.expect(pm.response.json().duracionSegundos).to.eql(900); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rechazar contraseña incorrecta",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/sesiones",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"correo\": \"matias.munoz@foro.cl\", \"contrasena\": \"Incorrecta2026!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 401', function () { pm.response.to.have.status(401); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar cinco categorías",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_foro}}/api/categorias",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Existen al menos cinco categorías', function () { pm.expect(pm.response.json().length).to.be.at.least(5); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Buscar temas por texto y categoría",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_foro}}/api/temas?texto=Oracle&categoriaId=2",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('La búsqueda recupera el tema de Oracle', function () { pm.expect(pm.response.json().contenido.some(tema => tema.titulo.includes('Oracle'))).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Visualizar tema",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_foro}}/api/temas/1",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Visualizar comentarios",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_foro}}/api/temas/1/comentarios",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Registrar usuario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/usuarios/registro",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\": \"Usuario de evaluación\", \"correo\": \"{{correo_prueba}}\", \"contrasena\": \"Evaluacion2026!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 201', function () { pm.response.to.have.status(201); });",
+              "pm.collectionVariables.set('usuario_prueba', pm.response.json().id);",
+              "pm.test('El registro asigna el rol de usuario', function () { pm.expect(pm.response.json().rol).to.eql('USUARIO'); pm.expect(pm.response.json()).not.to.have.property('contrasenaHash'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Iniciar sesión del usuario registrado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/sesiones",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"correo\": \"{{correo_prueba}}\", \"contrasena\": \"Evaluacion2026!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.collectionVariables.set('token_prueba', pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rechazar correo duplicado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/usuarios/registro",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\": \"Usuario de evaluación\", \"correo\": \"{{correo_prueba}}\", \"contrasena\": \"Evaluacion2026!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 409', function () { pm.response.to.have.status(409); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restringir listado de usuarios",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_usuarios}}/api/usuarios",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_usuario}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 403', function () { pm.response.to.have.status(403); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listar usuarios como administrador",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_usuarios}}/api/usuarios",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_administrador}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('El listado protege las contraseñas', function () { pm.response.json().forEach(usuario => { pm.expect(usuario).not.to.have.property('contrasenaHash'); }); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar cuenta propia",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_usuarios}}/api/usuarios/actual",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_prueba}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Modificar cuenta propia",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/usuarios/{{usuario_prueba}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\": \"Usuario actualizado\", \"correo\": \"{{correo_prueba}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_prueba}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restringir asignación de roles",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/usuarios/{{usuario_prueba}}/rol",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rol\": \"ADMINISTRADOR\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_prueba}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 403', function () { pm.response.to.have.status(403); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Asignar rol desde administración",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/usuarios/{{usuario_prueba}}/rol",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rol\": \"MODERADOR\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_administrador}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restablecer rol de usuario",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/usuarios/{{usuario_prueba}}/rol",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"rol\": \"USUARIO\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_administrador}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Validar registro incompleto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_usuarios}}/api/usuarios/registro",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\": \"\", \"correo\": \"incorrecto\", \"contrasena\": \"123\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restringir creación de categorías",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_foro}}/api/categorias",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\": \"Categoría de evaluación\", \"descripcion\": \"Categoría temporal para validar el ciclo de operaciones\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_usuario}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 403', function () { pm.response.to.have.status(403); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear categoría como moderador",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_foro}}/api/categorias",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\": \"Categoría de evaluación\", \"descripcion\": \"Categoría temporal para validar el ciclo de operaciones\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_moderador}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 201', function () { pm.response.to.have.status(201); });",
+              "pm.collectionVariables.set('categoria_prueba', pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Modificar categoría",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_foro}}/api/categorias/{{categoria_prueba}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\": \"Categoría actualizada\", \"descripcion\": \"Descripción actualizada para la evaluación\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_moderador}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar categoría",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_foro}}/api/categorias/{{categoria_prueba}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Publicar tema",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_foro}}/api/temas",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"titulo\": \"Prueba de integración\", \"contenido\": \"Publicación para comprobar la persistencia en Oracle\", \"categoriaId\": \"{{categoria_prueba}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_prueba}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 201', function () { pm.response.to.have.status(201); });",
+              "pm.collectionVariables.set('tema_prueba', pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Impedir edición de tema ajeno",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_foro}}/api/temas/{{tema_prueba}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"titulo\": \"Prueba de integración\", \"contenido\": \"Publicación para comprobar la persistencia en Oracle\", \"categoriaId\": \"{{categoria_prueba}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_usuario}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 403', function () { pm.response.to.have.status(403); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Modificar tema propio",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_foro}}/api/temas/{{tema_prueba}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"titulo\": \"Prueba de integración actualizada\", \"contenido\": \"Publicación para comprobar la persistencia en Oracle\", \"categoriaId\": \"{{categoria_prueba}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_prueba}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Buscar publicación creada",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_foro}}/api/temas?texto=integraci%C3%B3n&categoriaId={{categoria_prueba}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('El tema actualizado está persistido', function () { pm.expect(pm.response.json().totalElementos).to.eql(1); pm.expect(pm.response.json().contenido[0].titulo).to.eql('Prueba de integración actualizada'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Publicar comentario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_foro}}/api/temas/{{tema_prueba}}/comentarios",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"contenido\": \"Comentario de evaluación\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_prueba}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 201', function () { pm.response.to.have.status(201); });",
+              "pm.collectionVariables.set('comentario_prueba', pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultar comentario creado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_foro}}/api/temas/{{tema_prueba}}/comentarios",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Impedir edición de comentario ajeno",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_foro}}/api/temas/{{tema_prueba}}/comentarios/{{comentario_prueba}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"contenido\": \"Cambio no autorizado\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_usuario}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 403', function () { pm.response.to.have.status(403); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Modificar comentario propio",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_foro}}/api/temas/{{tema_prueba}}/comentarios/{{comentario_prueba}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"contenido\": \"Comentario actualizado\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_prueba}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Proteger categoría con temas",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{url_foro}}/api/categorias/{{categoria_prueba}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_moderador}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 409', function () { pm.response.to.have.status(409); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Impedir eliminación de comentario ajeno",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{url_foro}}/api/temas/{{tema_prueba}}/comentarios/{{comentario_prueba}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_usuario}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 403', function () { pm.response.to.have.status(403); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eliminar comentario propio",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{url_foro}}/api/temas/{{tema_prueba}}/comentarios/{{comentario_prueba}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_prueba}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 204', function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Impedir eliminación de tema ajeno",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{url_foro}}/api/temas/{{tema_prueba}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_usuario}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 403', function () { pm.response.to.have.status(403); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eliminar tema propio",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{url_foro}}/api/temas/{{tema_prueba}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_prueba}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 204', function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comprobar eliminación del tema",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_foro}}/api/temas/{{tema_prueba}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 404', function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eliminar categoría temporal",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{url_foro}}/api/categorias/{{categoria_prueba}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_moderador}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 204', function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restringir acceso a cuenta ajena",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_usuarios}}/api/usuarios/1",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_prueba}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 403', function () { pm.response.to.have.status(403); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eliminar usuario de evaluación",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{url_usuarios}}/api/usuarios/{{usuario_prueba}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_prueba}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 204', function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comprobar eliminación de usuario",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_usuarios}}/api/usuarios/{{usuario_prueba}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_administrador}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 404', function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conservar último administrador",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{url_usuarios}}/api/usuarios/1",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_administrador}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 409', function () { pm.response.to.have.status(409); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Validar paginación",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{url_foro}}/api/temas?tamano=100",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 400', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rechazar publicación sin sesión",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{url_foro}}/api/temas",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"titulo\": \"Prueba de integración\", \"contenido\": \"Publicación para comprobar la persistencia en Oracle\", \"categoriaId\": \"{{categoria_prueba}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Respuesta HTTP 401', function () { pm.response.to.have.status(401); });"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (!pm.collectionVariables.get('correo_prueba')) { pm.collectionVariables.set('correo_prueba', 'evaluacion.' + Date.now() + '@foro.cl'); }"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "correo_prueba",
+      "value": ""
+    }
+  ]
+}

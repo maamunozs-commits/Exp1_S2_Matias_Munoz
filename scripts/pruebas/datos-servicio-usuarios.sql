@@ -1,0 +1,10 @@
+DELETE FROM usuarios;
+DELETE FROM roles;
+INSERT INTO roles (id,nombre,descripcion) VALUES (1,'ADMINISTRADOR','Gestiona usuarios, asigna roles y administra categorías');
+INSERT INTO roles (id,nombre,descripcion) VALUES (2,'MODERADOR','Administra las categorías y participa en el foro');
+INSERT INTO roles (id,nombre,descripcion) VALUES (3,'USUARIO','Publica temas y comentarios y administra su propia cuenta');
+INSERT INTO usuarios (id,nombre,correo,contrasena_hash,rol_id,fecha_creacion) VALUES (1,'Matias Muñoz','matias.munoz@foro.cl','$2a$10$CTRGD5EICgcfPSBOxNRb0O45K0XIUBHWjSN8dutxTNmR3NvuoBo2e',1,CURRENT_TIMESTAMP);
+INSERT INTO usuarios (id,nombre,correo,contrasena_hash,rol_id,fecha_creacion) VALUES (2,'Camila Soto','camila.soto@foro.cl','$2a$10$CTRGD5EICgcfPSBOxNRb0O45K0XIUBHWjSN8dutxTNmR3NvuoBo2e',2,CURRENT_TIMESTAMP);
+INSERT INTO usuarios (id,nombre,correo,contrasena_hash,rol_id,fecha_creacion) VALUES (3,'Diego Rojas','diego.rojas@foro.cl','$2a$10$CTRGD5EICgcfPSBOxNRb0O45K0XIUBHWjSN8dutxTNmR3NvuoBo2e',3,CURRENT_TIMESTAMP);
+ALTER TABLE roles ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE usuarios ALTER COLUMN id RESTART WITH 100;
